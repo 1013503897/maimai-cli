@@ -138,6 +138,20 @@ python tests/test_common.py      # common-param assembly + Uri.encode (asserts: 
 python tests/test_crypto.py      # md5/sha256 + login RSA round-trip
 ```
 
+## Verified on-device (frida)
+
+The static findings were confirmed against live traffic on a Pixel 6 (v6.6.84, art-runtime-srv
+17.16.4) — see [`frida/`](frida/):
+
+- Hooking `df.C2665.m11054` (the common-param appender) shows every real request URL carrying
+  exactly the param set/order `common.py` produces, and **`hasSig:false`** on all of them — no
+  signature on the wire. `tests/test_client.py` pins the assembly against a captured URL.
+- `NativeLib.getKey()` returned a **1024-bit RSA public key** (`MIGf…IDAQAB`) — confirming it's a
+  public key used only to encrypt the login password, not a request secret. That key ships as the
+  default in `session.example.json` / `crypto.MAIMAI_LOGIN_PUBKEY`.
+- The capture also caught (and fixed) a placement detail: the login `need_script=1` is appended
+  **after** the common params (`verify_reg_login_code_v3?<common>&need_script=1`).
+
 ## Layout
 
 ```
@@ -290,6 +304,17 @@ python tests/test_api.py         # 端点 URL
 python tests/test_common.py      # 通用参数装配 + Uri.encode（断言：无签名参数）
 python tests/test_crypto.py      # md5/sha256 + 登录 RSA 往返
 ```
+
+## 设备实测验证（frida）
+
+静态结论已在 Pixel 6（v6.6.84，art-runtime-srv 17.16.4）真机流量上验证 —— 见 [`frida/`](frida/)：
+
+- hook `df.C2665.m11054`（通用参数装配器）打印出每条真实请求 URL，参数集/顺序与 `common.py` 逐字段一致，
+  且全部 **`hasSig:false`** —— wire 上没有签名。`tests/test_client.py` 用抓到的真实 URL 钉住装配。
+- `NativeLib.getKey()` 返回一个 **1024-bit RSA 公钥**（`MIGf…IDAQAB`）—— 印证它是只用于加密登录密码的公钥、
+  不是请求密钥。该公钥作为默认值写进 `session.example.json` / `crypto.MAIMAI_LOGIN_PUBKEY`。
+- 抓包还发现并修正了一个位置细节：登录 `need_script=1` 追加在通用参数**之后**
+  （`verify_reg_login_code_v3?<common>&need_script=1`）。
 
 ## 目录
 

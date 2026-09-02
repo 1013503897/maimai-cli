@@ -16,6 +16,14 @@ from __future__ import annotations
 import base64
 import hashlib
 
+# The RSA public key NativeLib.getKey() returns on v6.6.84 — captured live via frida (a 1024-bit
+# X.509 SubjectPublicKeyInfo, base64). It's a *public* key, not a secret; login.py uses it as the
+# default for password login when the session doesn't override it. May rotate across app versions.
+MAIMAI_LOGIN_PUBKEY = (
+    "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDbJGJuNnD/h1Cnrjw4rwjQ9JXZssXgpsjPrhPzn0BQ+04a"
+    "WHHTkEFopyqMOaSz35fAlGt8jcRDxYIE4q5/2/xHlPNczkPJUZJ2hkzqPTnhlNu8aLasFxdrgZrBZEIWrnFkt"
+    "IoIiGMqzuVQ5ZBsGGc9GQg36Mbx2Wuj3m5MzRq6awIDAQAB")
+
 # The DigestUtils algorithm-string dispatcher (re.C6584.ൡ) understands these.
 ALG_RSA = "RSA"
 ALG_MD5 = "MD5"

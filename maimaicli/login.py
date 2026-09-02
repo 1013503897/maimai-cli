@@ -86,10 +86,12 @@ class LoginClient:
                     from_: str | None = None) -> dict:
         """POST account/v5/verify_reg_login_code_v3 -> {access_token, uid, raw}. Provide `code`
         (SMS) or `password` (+ `pubkey` = NativeLib.getKey())."""
-        name = "verify_reg_login_code_v3"
+        # need_script=1 (+ optional from) go into the URL query AFTER the common params — the app
+        # appends them to getNewApi()'s already-common-param'd result. Verified live via a frida
+        # capture: wire URL = verify_reg_login_code_v3?<common>&need_script=1 (NOT before the '?').
+        query_extra = {"need_script": 1}
         if from_:
-            name += "&from=" + from_
-        name += "&need_script=1"                      # app appends this when no bmcc_token
+            query_extra["from"] = from_
         params: dict = {
             "mobile": mobile, "token": token,
             "reg_way": "1", "dev_type": 3, "info_type": 2, "new_fr": 1,
@@ -97,12 +99,12 @@ class LoginClient:
         if code:
             params["code"] = code
         elif password:
-            if not pubkey:
-                raise LoginError("password 登录需要 pubkey (NativeLib.getKey() 的 RSA 公钥)")
-            params["epassword"] = crypto.encrypt_password(password, pubkey)
+            pk = pubkey or self.s.get("pubkey") or crypto.MAIMAI_LOGIN_PUBKEY
+            params["epassword"] = crypto.encrypt_password(password, pk)
         else:
             raise LoginError("需要 code 或 password")
-        resp = self.c.post(name, "account", "v5", params)
+        resp = self.c.post("verify_reg_login_code_v3", "account", "v5", params,
+                           query_extra=query_extra)
         if not _ok(resp):
             raise LoginError(f"verify_reg_login_code 失败: {_err(resp)}")
         return _extract_tokens(resp)

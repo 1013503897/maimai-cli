@@ -32,6 +32,6 @@
   "language": "zh_CN",
   "package_name": "com.taou.maimai",
 
-  "_note_pubkey": "Only needed for password login (mm login --password). NativeLib.getKey() returns an RSA public key (base64 X.509 DER) — extract once from libnativelib_maimai.so; it is public, not secret.",
-  "pubkey": ""
+  "_note_pubkey": "Only needed for password login (mm login --password). NativeLib.getKey() returns an RSA public key (base64 X.509 DER) — public, not secret. The value below was captured live from v6.6.84 getKey() via frida (1024-bit RSA).",
+  "pubkey": "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDbJGJuNnD/h1Cnrjw4rwjQ9JXZssXgpsjPrhPzn0BQ+04aWHHTkEFopyqMOaSz35fAlGt8jcRDxYIE4q5/2/xHlPNczkPJUZJ2hkzqPTnhlNu8aLasFxdrgZrBZEIWrnFktIoIiGMqzuVQ5ZBsGGc9GQg36Mbx2Wuj3m5MzRq6awIDAQAB"
 }

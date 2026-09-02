@@ -108,12 +108,20 @@ class MaimaiClient:
         return self.raise_for_auth(self._parse(r))
 
     def post(self, name: str, module: str | None = None, version: str | None = None,
-             params: dict | None = None, base: str = HOST, is_json: bool = False) -> dict:
+             params: dict | None = None, base: str = HOST, is_json: bool = False,
+             query_extra: dict | None = None) -> dict:
         """Signed POST to <base>/<module>/<version>/<name>; common params in the query, business
-        params in the body (form by default, JSON with is_json=True)."""
+        params in the body (form by default, JSON with is_json=True). `query_extra` appends extra
+        query params AFTER the common block (the app does this for e.g. login's need_script=1,
+        because getNewApi returns the URL already carrying the common params — confirmed by a live
+        frida capture of df.C2665.m11054)."""
         url_path = api.new_api(name, module, version, base)
         sep = "&" if "?" in url_path else "?"
         url = url_path + sep + common.build_common_query(self.s, url_path)
+        if query_extra:
+            qs = common.build_param_string(query_extra)
+            if qs:
+                url += "&" + qs
         h = self._headers()
         if is_json:
             h["Content-Type"] = "application/json"

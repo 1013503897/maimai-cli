@@ -18,3 +18,11 @@ venv/
 *.xapk
 *.so
 apks/
+
+# frida: node deps + build/scratch artifacts (keep the .js sources + runners)
+frida/node_modules/
+frida/package-lock.json
+frida/*.c.js
+frida/_*.log
+frida/_*.png
+frida/.pid
