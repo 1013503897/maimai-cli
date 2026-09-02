@@ -87,6 +87,26 @@ def cmd_gossip(args):
     _emit(_run(lambda: client.gossip(args.name, _kv(args.param) or None)), args)
 
 
+def cmd_jobs(args):
+    """职位查找 — GET search_front/app/job_search. Reproduced from the RN 职位 tab, verified live."""
+    client = _client(args)
+    resp = _run(lambda: client.job_search(args.query, page=args.page, count=args.count,
+                                          extra=_kv(args.param) or None))
+    if isinstance(resp, dict) and resp.get("result") not in ("ok", None) and resp.get("code") not in (0, None):
+        print(f"[!] job_search: result={resp.get('result')} error_msg={resp.get('error_msg')}", file=sys.stderr)
+    jobs = MaimaiClient.parse_jobs(resp)
+    fmt = "json" if args.json else args.format
+    body = output.render_jobs(jobs, fmt)
+    if args.output:
+        with open(args.output, "w", encoding="utf-8", newline="") as f:
+            f.write(body + ("\n" if not body.endswith("\n") else ""))
+        print(f"[✓] {len(jobs)} jobs -> {args.output} ({fmt})")
+        return
+    if fmt == "text":
+        print(f"# {len(jobs)} jobs for '{args.query}' (page={args.page}, remain={resp.get('remain')})")
+    print(body)
+
+
 def cmd_login(args):
     if not os.path.exists(args.session):
         sys.exit(f"session file not found: {args.session}\n"
@@ -169,6 +189,14 @@ def main(argv=None):
     go.add_argument("name")
     add_common(go)
     go.set_defaults(func=cmd_gossip)
+
+    jb = sub.add_parser("jobs", help="职位查找 — search jobs by keyword (search_front/app/job_search)")
+    jb.add_argument("query")
+    jb.add_argument("--page", type=int, default=0)
+    jb.add_argument("--count", type=int, default=10)
+    jb.add_argument("--format", choices=["text", "json", "csv", "md"], default="text")
+    add_common(jb)
+    jb.set_defaults(func=cmd_jobs)
 
     lp = sub.add_parser("login", help="SMS-code login -> obtain access_token into the session file")
     lp.add_argument("--phone", required=True, help="mobile number")

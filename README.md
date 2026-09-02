@@ -83,11 +83,17 @@ mm get sug/get -p chars=张伟 -p type=0
 mm get gossip/v3/stext --post -p gid=123 -p share_channel=1     # POST: business params in body
 mm get feed/v6/video_detail --post -p page=1 -p count=10
 
+# 职位查找 / job search (search_front/app/job_search) — real 脉脉 job listings
+mm jobs "安卓逆向工程师"                    # name | salary | company | [city exp degree]
+mm jobs "Python" --count 20 --format md    # text | json | csv | md
+mm jobs "算法" --page 1                     # paginate
+
 # convenience wrappers
 mm settings                       # GET user/v4/settings (session liveness)
 mm suggest 张伟                    # GET sug/get — search-word suggestions
 mm feed home                      # GET feed/v5/home
 mm gossip <name> -p k=v           # GET gossip/v3/<name>
+mm get user/v4/get                # your own profile (name/company/position/…)
 
 # output
 mm get user/v4/settings --json          # raw JSON
@@ -151,6 +157,11 @@ The static findings were confirmed against live traffic on a Pixel 6 (v6.6.84, a
   default in `session.example.json` / `crypto.MAIMAI_LOGIN_PUBKEY`.
 - The capture also caught (and fixed) a placement detail: the login `need_script=1` is appended
   **after** the common params (`verify_reg_login_code_v3?<common>&need_script=1`).
+- **Full end-to-end loop verified live**: a real SMS-code login (网易易盾 auto-passed, `200`) minted
+  an `access_token`; with it, off-device `mm get user/v4/get` returned the real profile and
+  `mm jobs "安卓逆向工程师"` returned real job listings — the server accepts the reproduced request
+  (`result:"ok"`). The RN 职位 tab's endpoints and the whole endpoint map are in
+  [`docs/endpoints.md`](docs/endpoints.md).
 
 ## Layout
 
@@ -254,11 +265,17 @@ mm get sug/get -p chars=张伟 -p type=0
 mm get gossip/v3/stext --post -p gid=123 -p share_channel=1     # POST：业务参数进 body
 mm get feed/v6/video_detail --post -p page=1 -p count=10
 
+# 职位查找 / job search（search_front/app/job_search）—— 真实脉脉职位
+mm jobs "安卓逆向工程师"                    # 岗位 | 薪资 | 公司 | [城市 经验 学历]
+mm jobs "Python" --count 20 --format md    # text | json | csv | md
+mm jobs "算法" --page 1                     # 翻页
+
 # 便捷封装
 mm settings                       # GET user/v4/settings（验活）
 mm suggest 张伟                    # GET sug/get —— 搜索联想
 mm feed home                      # GET feed/v5/home
 mm gossip <name> -p k=v           # GET gossip/v3/<name>
+mm get user/v4/get                # 自己的资料（姓名/公司/职位…）
 
 # 输出
 mm get user/v4/settings --json          # 原始 JSON
@@ -315,6 +332,9 @@ python tests/test_crypto.py      # md5/sha256 + 登录 RSA 往返
   不是请求密钥。该公钥作为默认值写进 `session.example.json` / `crypto.MAIMAI_LOGIN_PUBKEY`。
 - 抓包还发现并修正了一个位置细节：登录 `need_script=1` 追加在通用参数**之后**
   （`verify_reg_login_code_v3?<common>&need_script=1`）。
+- **全链路实测打通**：一次真实短信验证码登录（网易易盾无感通过、`200`）签发出 `access_token`；用它离设备
+  `mm get user/v4/get` 拉到真实资料、`mm jobs "安卓逆向工程师"` 拉到真实职位列表，服务器接受复现请求
+  （`result:"ok"`）。RN 职位 tab 的端点与完整端点图见 [`docs/endpoints.md`](docs/endpoints.md)。
 
 ## 目录
 

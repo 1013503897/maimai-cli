@@ -158,5 +158,42 @@ class MaimaiClient:
     def contact(self, name: str, params: dict | None = None, version: str = "v3") -> dict:
         return self.get(name, "contact", version, params)
 
+    # ---- job search (RE'd from the RN 职位 tab, verified live) -----------------------------
+    def job_search(self, query: str, page: int = 0, count: int = 10,
+                   extra: dict | None = None) -> dict:
+        """GET search_front/app/job_search — 脉脉 job search (职位查找). The RN 职位 tab hits this
+        with query/page/count (+ rn/use_native_net); reproduced off-device with a captured session.
+        Response: {data:[job…], count, remain, filters, search_tags, rec_jobs, …}."""
+        params = {"query": query, "page": page, "count": count,
+                  "fr": "search_job_list_search_job_list",
+                  "rn": 1, "use_native_net": 1}
+        if extra:
+            params.update(extra)
+        return self.get("search_front/app/job_search", params=params)
+
+    @staticmethod
+    def parse_jobs(resp: dict) -> list[dict]:
+        """Flatten a job_search response into [{name, salary, company, city, degree, exp, scale,
+        stage, jobId, ejid}] (fields RE'd from the live response)."""
+        out = []
+        for j in (resp.get("data") or []):
+            if not isinstance(j, dict):
+                continue
+            out.append({
+                "name": j.get("position") or j.get("name"),
+                "salary": j.get("salary_info") or (f"{j.get('salary_min')}-{j.get('salary_max')}"
+                                                   if j.get("salary_min") else None),
+                "company": j.get("company"),
+                "scale": j.get("company_scale"),
+                "stage": j.get("company_stage"),
+                "city": j.get("city"),
+                "degree": j.get("degree"),
+                "exp": j.get("worktime"),
+                "jobId": j.get("id"),
+                "ejid": j.get("ejid"),          # encrypted job id (for detail/apply)
+                "pub_time": j.get("pub_time"),
+            })
+        return out
+
 
 DEFAULT_SESSION = os.environ.get("MAIMAI_SESSION") or "session.local.json"

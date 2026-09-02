@@ -57,3 +57,31 @@ def render(obj, fmt: str) -> str:
     if fmt == "json":
         return as_json(obj)
     return summarize(obj) if isinstance(obj, dict) else as_json(obj)
+
+
+# ---- job-search rendering ------------------------------------------------------------------
+_JOB_COLS = ["name", "salary", "company", "city", "exp", "degree", "scale", "stage", "jobId"]
+
+
+def render_jobs(jobs: list[dict], fmt: str) -> str:
+    if fmt == "json":
+        return as_json(jobs)
+    if fmt == "csv":
+        import csv, io
+        buf = io.StringIO()
+        w = csv.DictWriter(buf, fieldnames=_JOB_COLS, extrasaction="ignore")
+        w.writeheader()
+        for j in jobs:
+            w.writerow({k: ("" if j.get(k) is None else j.get(k)) for k in _JOB_COLS})
+        return buf.getvalue()
+    if fmt == "md":
+        head = "| " + " | ".join(_JOB_COLS) + " |"
+        sep = "| " + " | ".join("---" for _ in _JOB_COLS) + " |"
+        rows = ["| " + " | ".join(str(j.get(c) or "").replace("|", "\\|") for c in _JOB_COLS) + " |"
+                for j in jobs]
+        return "\n".join([head, sep, *rows])
+    # text
+    return "\n".join(
+        f"- {j.get('name')} | {j.get('salary')} | {j.get('company')}"
+        f"  [{j.get('city') or ''} {j.get('exp') or ''} {j.get('degree') or ''}]".rstrip()
+        for j in jobs)

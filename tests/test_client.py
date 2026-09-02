@@ -63,6 +63,24 @@ def test_verify_url_need_script_after_common():
     assert "code=1234" not in u
 
 
+def test_parse_jobs():
+    """parse_jobs flattens the live job_search response shape (fields RE'd on-device)."""
+    resp = {"result": "ok", "remain": 1, "data": [
+        {"position": "高级安卓逆向工程师", "salary_info": "20k-35k", "salary": 7,
+         "company": "迈富时（上海）智能技术有限公司", "company_scale": "1000~10000人",
+         "company_stage": "已上市", "city": "南京", "degree": "专科及以上", "worktime": "5-10年",
+         "id": 9189822, "ejid": "JZzfyq1fNpzHXUzgnXfTMA", "pub_time": "2026-06-06T09:46:45"},
+    ]}
+    jobs = MaimaiClient.parse_jobs(resp)
+    assert len(jobs) == 1
+    j = jobs[0]
+    assert j["name"] == "高级安卓逆向工程师"
+    assert j["salary"] == "20k-35k"          # salary_info, not the enum code 7
+    assert j["company"].startswith("迈富时")
+    assert j["city"] == "南京" and j["exp"] == "5-10年" and j["degree"] == "专科及以上"
+    assert j["jobId"] == 9189822 and j["ejid"] == "JZzfyq1fNpzHXUzgnXfTMA"
+
+
 if __name__ == "__main__":
     n = 0
     for name, fn in sorted(globals().items()):
