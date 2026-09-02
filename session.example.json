@@ -1,0 +1,37 @@
+{
+  "access_token": "<PASTE_YOUR_access_token_FROM_A_LOGGED_IN_DEVICE>",
+  "u": "<your_uid>",
+  "uid": "<your_uid>",
+  "user_agent": "MaiMai/6.6.84 (Android)",
+
+  "version": "6.6.84",
+  "ver_code": "60684",
+  "channel": "develop",
+  "vc": "Android 13/33",
+  "device": "Xiaomi 22011211C",
+  "udid": "<from-your-device>",
+  "android_id": "<from-your-device>",
+  "oaid": "<from-your-device-optional>",
+  "hms_oaid": "",
+  "sm_dl": "",
+  "sm_did": "",
+
+  "net": "wifi",
+  "open": "icon",
+  "push_open": "0",
+  "isEmulator": "0",
+  "launched_by_user": "1",
+
+  "density": "3.0",
+  "screen_width": "1080",
+  "screen_height": "2340",
+  "install_uuid": "<from-your-device>",
+  "launch_uuid": "<from-your-device>",
+  "session_uuid": "<from-your-device>",
+  "brand": "Xiaomi",
+  "language": "zh_CN",
+  "package_name": "com.taou.maimai",
+
+  "_note_pubkey": "Only needed for password login (mm login --password). NativeLib.getKey() returns an RSA public key (base64 X.509 DER) — extract once from libnativelib_maimai.so; it is public, not secret.",
+  "pubkey": ""
+}

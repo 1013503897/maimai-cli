@@ -1,0 +1,5 @@
+requests>=2.28
+# optional: MCP server
+# mcp>=1.2
+# optional: password login (RSA) — SMS-code login does not need this
+# pycryptodome>=3.20

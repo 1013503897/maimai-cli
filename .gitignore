@@ -1,0 +1,20 @@
+# session holds your access_token — never commit it
+session.local.json
+.env
+
+# python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.pytest_cache/
+.venv/
+venv/
+
+# apks / re artifacts
+*.apk
+*.xapk
+*.so
+apks/
